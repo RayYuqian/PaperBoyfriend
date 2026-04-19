@@ -116,6 +116,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
              });
            } else if (data.url) {
              get().addMessage({ id: (Date.now() + 3).toString(), sender: 'bot', type: 'image', content: data.url });
+           } else if (data.error) {
+             get().addMessage({ id: (Date.now() + 3).toString(), sender: 'bot', type: 'text', content: `[图片生成失败] ${data.error}` });
            }
          }).catch(err => console.error("Image gen error:", err));
       }

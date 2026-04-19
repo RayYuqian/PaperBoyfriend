@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { characters } from '@/lib/characters';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const isAllowed = await checkRateLimit(`img:${ip}`, 30, 60 * 60 * 1000); // 30 per hour
+    if (!isAllowed) {
+      return NextResponse.json({ error: "图片生成次数过多，请一小时后再试。 (已触发服务器防刷保护)" }, { status: 429 });
+    }
+
     const { characterId, prompt } = await req.json();
     const character = characters.find(c => c.id === characterId);
 

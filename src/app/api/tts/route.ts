@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 /** 豆包语音 HTTP 非流式合成常见文本上限（含标点），超出易失败 */
 const MAX_TTS_UTF8_CHARS = 2000;
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const isAllowed = await checkRateLimit(`tts:${ip}`, 100, 60 * 60 * 1000); // 100 per hour
+    if (!isAllowed) {
+      return NextResponse.json({ error: "语音生成次数过多，请一小时后再试。 (已触发服务器防刷保护)" }, { status: 429 });
+    }
+
     const { text, voiceType } = await req.json();
 
     const apiKey = process.env.VOLC_API_KEY?.trim();

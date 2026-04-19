@@ -40,6 +40,7 @@ export default function ChatPage() {
     <div className="app-container" style={{ backgroundImage: 'url(/chat_bg.png)', backgroundSize: 'cover' }}>
       {/* Header */}
       <div style={{
+        flexShrink: 0,
         height: '60px',
         backgroundColor: '#EDEDED',
         display: 'flex',
@@ -108,6 +109,7 @@ export default function ChatPage() {
 
       {/* Input Area */}
       <div style={{
+        flexShrink: 0,
         padding: '12px 16px',
         backgroundColor: '#F7F7F7',
         borderTop: '1px solid var(--wechat-border-light)',
