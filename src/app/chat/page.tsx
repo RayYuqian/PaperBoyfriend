@@ -23,37 +23,39 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fix mobile keyboard pushing header off screen
+  // Lock body position on chat page to prevent Android keyboard from shifting layout
   useEffect(() => {
+    // Lock body
+    document.body.style.position = 'fixed';
+    document.body.style.top = '0';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.bottom = '0';
+    document.body.style.overflow = 'hidden';
+
     const vv = window.visualViewport;
-    if (!vv) return;
 
     const lockPosition = () => {
-      if (containerRef.current) {
-        // Set container height to visual viewport height
-        containerRef.current.style.height = `${vv.height}px`;
-        // Counteract any scroll offset the browser introduced
-        containerRef.current.style.top = `${vv.offsetTop}px`;
-      }
-      // Force page back to top to prevent background shift
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
+      if (!vv || !containerRef.current) return;
+      containerRef.current.style.height = `${vv.height}px`;
     };
 
-    const onScroll = () => {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-
-    vv.addEventListener('resize', lockPosition);
-    vv.addEventListener('scroll', lockPosition);
-    window.addEventListener('scroll', onScroll);
-    lockPosition();
+    if (vv) {
+      vv.addEventListener('resize', lockPosition);
+      lockPosition();
+    }
 
     return () => {
-      vv.removeEventListener('resize', lockPosition);
-      vv.removeEventListener('scroll', lockPosition);
-      window.removeEventListener('scroll', onScroll);
+      // Unlock body when leaving chat page
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.bottom = '';
+      document.body.style.overflow = '';
+      if (vv) {
+        vv.removeEventListener('resize', lockPosition);
+      }
     };
   }, []);
 
@@ -86,7 +88,7 @@ export default function ChatPage() {
         top: 0,
         zIndex: 10
       }}>
-        <button 
+        <button
           onClick={() => { clearChat(); router.back(); }}
           style={{ marginRight: '16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
         >
@@ -116,39 +118,39 @@ export default function ChatPage() {
           flexDirection: 'column',
           gap: '20px'
         }}>
-        {messages.map((msg) => {
-          const isUser = msg.sender === 'user';
-          return (
-            <div key={msg.id} style={{
-              display: 'flex',
-              flexDirection: isUser ? 'row-reverse' : 'row',
-              alignItems: 'flex-start',
-              gap: '12px'
-            }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={isUser ? '/avatars/user.png' : character.avatar} 
-                className="avatar" 
-                alt="avatar" 
-              />
-              
-              {msg.type === 'image' ? (
-                <div style={{ marginTop: '4px' }}>
-                  <ImageMessage url={msg.content} />
-                </div>
-              ) : (
-                <div className={`bubble ${isUser ? 'send' : 'recv'}`}>
-                  {msg.type === 'voice' ? (
-                    <VoiceMessage base64Audio={msg.content} />
-                  ) : (
-                    <span>{msg.content}</span>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
+          {messages.map((msg) => {
+            const isUser = msg.sender === 'user';
+            return (
+              <div key={msg.id} style={{
+                display: 'flex',
+                flexDirection: isUser ? 'row-reverse' : 'row',
+                alignItems: 'flex-start',
+                gap: '10px'
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={isUser ? '/avatars/user.png' : character.avatar}
+                  className="avatar"
+                  alt="avatar"
+                />
+
+                {msg.type === 'image' ? (
+                  <div style={{ marginTop: '4px' }}>
+                    <ImageMessage url={msg.content} />
+                  </div>
+                ) : (
+                  <div className={`bubble ${isUser ? 'send' : 'recv'}`}>
+                    {msg.type === 'voice' ? (
+                      <VoiceMessage base64Audio={msg.content} />
+                    ) : (
+                      <span>{msg.content}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
@@ -159,7 +161,7 @@ export default function ChatPage() {
         backgroundColor: '#F7F7F7',
         borderTop: '1px solid var(--wechat-border-light)',
         display: 'flex',
-        gap: '12px',
+        gap: '8px',
         alignItems: 'flex-end'
       }}>
         <textarea

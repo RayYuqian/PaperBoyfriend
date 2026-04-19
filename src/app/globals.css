@@ -54,7 +54,7 @@ textarea {
 
 .bubble.recv {
   background-color: var(--wechat-bubble-recv);
-  margin-left: 12px;
+  margin-left: 2px;
 }
 
 .bubble.recv::before {
@@ -69,7 +69,7 @@ textarea {
 
 .bubble.send {
   background-color: var(--wechat-bubble-send);
-  margin-right: 12px;
+  margin-right: 2px;
 }
 
 .bubble.send::before {
