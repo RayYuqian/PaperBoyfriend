@@ -10,8 +10,15 @@ export default function ChatPage() {
   const router = useRouter();
   const { character, messages, isLoading, botState, sendMessage, clearChat } = useChatStore();
   const [inputText, setInputText] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Capture initial screen height once on mount — this never changes even when keyboard opens
+  const [bgHeight, setBgHeight] = useState<number>(0);
+
+  const scrollToBottom = () => {
+    const el = scrollContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  };
 
   useEffect(() => {
     if (!character) {
@@ -20,12 +27,16 @@ export default function ChatPage() {
   }, [character, router]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollToBottom();
   }, [messages]);
 
-  // Lock body position on chat page to prevent Android keyboard from shifting layout
+  // On mount: capture the full screen height for the background layer
   useEffect(() => {
-    // Lock body
+    setBgHeight(window.innerHeight);
+  }, []);
+
+  // Lock body on chat page to prevent Android keyboard from shifting the whole page
+  useEffect(() => {
     document.body.style.position = 'fixed';
     document.body.style.top = '0';
     document.body.style.left = '0';
@@ -35,22 +46,18 @@ export default function ChatPage() {
 
     const vv = window.visualViewport;
 
-    const lockPosition = () => {
+    const onResize = () => {
       if (!vv || !containerRef.current) return;
       containerRef.current.style.height = `${vv.height}px`;
-      // Scroll to latest message when keyboard opens
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      setTimeout(scrollToBottom, 100);
     };
 
     if (vv) {
-      vv.addEventListener('resize', lockPosition);
-      lockPosition();
+      vv.addEventListener('resize', onResize);
+      onResize();
     }
 
     return () => {
-      // Unlock body when leaving chat page
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
@@ -58,7 +65,7 @@ export default function ChatPage() {
       document.body.style.bottom = '';
       document.body.style.overflow = '';
       if (vv) {
-        vv.removeEventListener('resize', lockPosition);
+        vv.removeEventListener('resize', onResize);
       }
     };
   }, []);
@@ -88,8 +95,6 @@ export default function ChatPage() {
         alignItems: 'center',
         padding: '0 16px',
         borderBottom: '1px solid var(--wechat-border-light)',
-        position: 'sticky',
-        top: 0,
         zIndex: 10
       }}>
         <button
@@ -104,25 +109,33 @@ export default function ChatPage() {
         </h2>
       </div>
 
-      {/* Messages */}
+      {/* Messages area */}
       <div style={{
         flex: 1,
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Background layer - uses fixed 100vh so it never shifts when keyboard opens */}
-        <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0,
-          height: '100vh',
-          backgroundImage: 'url(/chat_bg.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }} />
-        {/* Scrollable content layer */}
-        <div style={{
+        {/* Background layer: height frozen at initial screen height, clipped by parent overflow:hidden */}
+        {bgHeight > 0 && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/chat_bg.png"
+            alt=""
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${bgHeight}px`,
+              objectFit: 'cover',
+              objectPosition: 'center',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        )}
+        {/* Scrollable content */}
+        <div ref={scrollContainerRef} style={{
           position: 'absolute',
           top: 0, bottom: 0, left: 0, right: 0,
           overflowY: 'auto',
@@ -164,7 +177,7 @@ export default function ChatPage() {
               </div>
             );
           })}
-          <div ref={messagesEndRef} />
+
         </div>
       </div>
 
@@ -176,7 +189,8 @@ export default function ChatPage() {
         borderTop: '1px solid var(--wechat-border-light)',
         display: 'flex',
         gap: '8px',
-        alignItems: 'flex-end'
+        alignItems: 'flex-end',
+        zIndex: 10,
       }}>
         <textarea
           value={inputText}
