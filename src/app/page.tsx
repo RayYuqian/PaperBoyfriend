@@ -26,7 +26,7 @@ export default function Home() {
         padding: '0 10px'
       }}>
         {characters.map(char => (
-          <div 
+          <div
             key={char.id}
             onClick={() => handleSelect(char.id)}
             style={{
@@ -44,12 +44,12 @@ export default function Home() {
             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={char.avatar} 
+            <img
+              src={char.avatar}
               alt={char.name}
               style={{
-                width: '80px',
-                height: '80px',
+                width: '100px',
+                height: '100px',
                 borderRadius: '50%',
                 objectFit: 'cover',
                 marginBottom: '12px'

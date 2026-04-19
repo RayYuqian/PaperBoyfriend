@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
       sequential_image_generation: "disabled",
       response_format: "url",
       size: "2K",
-      watermark: "false",
       n: numImages
     };
 
