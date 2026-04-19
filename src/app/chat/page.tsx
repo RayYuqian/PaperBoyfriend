@@ -128,7 +128,7 @@ export default function ChatPage() {
               width: '100%',
               height: `${bgHeight}px`,
               objectFit: 'cover',
-              objectPosition: 'center',
+              objectPosition: 'bottom',
               pointerEvents: 'none',
               zIndex: 0,
             }}

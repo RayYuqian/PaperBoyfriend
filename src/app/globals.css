@@ -44,7 +44,9 @@ textarea {
 /* Chat bubble styling */
 .bubble {
   position: relative;
-  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  padding: 12px 12px;
   border-radius: 8px;
   max-width: 70%;
   word-wrap: break-word;
@@ -125,7 +127,6 @@ textarea {
   align-items: center;
   gap: 8px;
   min-width: 80px;
-  min-height: 36px;
   cursor: pointer;
 }
 
