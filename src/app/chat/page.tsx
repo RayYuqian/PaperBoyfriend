@@ -28,20 +28,32 @@ export default function ChatPage() {
     const vv = window.visualViewport;
     if (!vv) return;
 
-    const handleResize = () => {
+    const lockPosition = () => {
       if (containerRef.current) {
+        // Set container height to visual viewport height
         containerRef.current.style.height = `${vv.height}px`;
+        // Counteract any scroll offset the browser introduced
+        containerRef.current.style.top = `${vv.offsetTop}px`;
       }
-      // Prevent browser from scrolling the page
-      window.scrollTo(0, 0);
+      // Force page back to top to prevent background shift
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     };
 
-    vv.addEventListener('resize', handleResize);
-    vv.addEventListener('scroll', () => window.scrollTo(0, 0));
-    handleResize();
+    const onScroll = () => {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    vv.addEventListener('resize', lockPosition);
+    vv.addEventListener('scroll', lockPosition);
+    window.addEventListener('scroll', onScroll);
+    lockPosition();
 
     return () => {
-      vv.removeEventListener('resize', handleResize);
+      vv.removeEventListener('resize', lockPosition);
+      vv.removeEventListener('scroll', lockPosition);
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
 
