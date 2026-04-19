@@ -38,6 +38,10 @@ export default function ChatPage() {
     const lockPosition = () => {
       if (!vv || !containerRef.current) return;
       containerRef.current.style.height = `${vv.height}px`;
+      // Scroll to latest message when keyboard opens
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     };
 
     if (vv) {
@@ -105,10 +109,19 @@ export default function ChatPage() {
         flex: 1,
         position: 'relative',
         overflow: 'hidden',
-        backgroundImage: 'url(/chat_bg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
       }}>
+        {/* Background layer - uses fixed 100vh so it never shifts when keyboard opens */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: '100vh',
+          backgroundImage: 'url(/chat_bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+        {/* Scrollable content layer */}
         <div style={{
           position: 'absolute',
           top: 0, bottom: 0, left: 0, right: 0,
@@ -116,7 +129,8 @@ export default function ChatPage() {
           padding: '20px 16px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '20px',
+          zIndex: 1,
         }}>
           {messages.map((msg) => {
             const isUser = msg.sender === 'user';
