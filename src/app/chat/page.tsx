@@ -11,6 +11,7 @@ export default function ChatPage() {
   const { character, messages, isLoading, botState, sendMessage, clearChat } = useChatStore();
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!character) {
@@ -21,6 +22,28 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Fix mobile keyboard pushing header off screen
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResize = () => {
+      if (containerRef.current) {
+        containerRef.current.style.height = `${vv.height}px`;
+      }
+      // Prevent browser from scrolling the page
+      window.scrollTo(0, 0);
+    };
+
+    vv.addEventListener('resize', handleResize);
+    vv.addEventListener('scroll', () => window.scrollTo(0, 0));
+    handleResize();
+
+    return () => {
+      vv.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleSend = () => {
     if (!inputText.trim() || isLoading) return;
@@ -37,7 +60,7 @@ export default function ChatPage() {
   if (!character) return null;
 
   return (
-    <div className="app-container" style={{ backgroundImage: 'url(/chat_bg.png)', backgroundSize: 'cover' }}>
+    <div className="app-container" ref={containerRef}>
       {/* Header */}
       <div style={{
         flexShrink: 0,
@@ -66,12 +89,21 @@ export default function ChatPage() {
       {/* Messages */}
       <div style={{
         flex: 1,
-        overflowY: 'auto',
-        padding: '20px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px'
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundImage: 'url(/chat_bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}>
+        <div style={{
+          position: 'absolute',
+          top: 0, bottom: 0, left: 0, right: 0,
+          overflowY: 'auto',
+          padding: '20px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
           return (
@@ -105,6 +137,7 @@ export default function ChatPage() {
           );
         })}
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input Area */}

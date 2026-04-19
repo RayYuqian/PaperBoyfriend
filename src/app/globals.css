@@ -38,7 +38,8 @@ button {
   font-family: inherit;
 }
 
-input, textarea {
+input,
+textarea {
   font-family: inherit;
 }
 
@@ -84,8 +85,8 @@ input, textarea {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
@@ -103,14 +104,22 @@ input, textarea {
   display: flex;
   flex-direction: column;
   background-color: var(--wechat-bg);
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
 @keyframes pulse {
-  0% { transform: scaleY(1); }
-  50% { transform: scaleY(0.7); }
-  100% { transform: scaleY(1); }
+  0% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.7);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
 }
 
 .audio-bar {
