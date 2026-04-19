@@ -14,7 +14,17 @@ export default function Home() {
   };
 
   return (
-    <div className="app-container" style={{ backgroundColor: '#fff', alignItems: 'center', padding: '20px' }}>
+    <div style={{
+      maxWidth: '600px',
+      margin: '0 auto',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      backgroundColor: '#fff',
+      alignItems: 'center',
+      padding: '20px',
+      overflowY: 'auto' as const,
+    }}>
       <h1 style={{ marginTop: '40px', marginBottom: '10px', fontSize: '24px' }}>纸片人男友</h1>
       <p style={{ color: '#666', marginBottom: '40px' }}>选择你的专属陪伴</p>
 
